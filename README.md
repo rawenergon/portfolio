@@ -45,12 +45,70 @@ window.portfolioData = {
     name: "Your Name",
     initials: "YN",
     role: "Full Stack Developer",
-    // ...
+    location: "Your Location",
+    email: "you@example.com",
+    avatar: "https://example.com/avatar.png",
+    quote: { text: "Your favorite quote", author: "You" },
+    about: [
+      "Write a short bio about yourself here.",
+      "Add another paragraph about your skills and experience."
+    ],
+    links: [
+      { label: "GitHub", href: "https://github.com/yourhandle",
+        card: { name: "GitHub", cardImage: "src/github.png" } },
+      { label: "Twitter", href: "https://twitter.com/yourhandle",
+        card: { name: "Twitter", cardImage: "src/x.png" } }
+    ]
   },
-  projects: [ /* add your projects */ ],
-  blogs: [ /* add your blog posts */ ],
-  // ...
-}
+  stack: [
+    { name: "React", icon: "icons/react.svg" },
+    { name: "Node.js", icon: "icons/nodejs.svg" }
+  ],
+  experience: [
+    {
+      org: "Company Name",
+      title: "Job Title",
+      type: "Full-time",
+      period: "Jan 2020 – Present",
+      tags: ["React", "Node.js"],
+      points: ["Describe your key achievement here."]
+    }
+  ],
+  education: [
+    {
+      org: "University Name",
+      title: "Degree",
+      field: "Major",
+      period: "2018 – 2022",
+      icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/graduation-cap.svg"
+    }
+  ],
+  projects: [
+    {
+      title: "Project One",
+      subtitle: "Short subtitle",
+      status: "Live",
+      date: "2025",
+      image: "https://example.com/project.png",
+      description: "A short description of your project.",
+      tags: ["React", "API"],
+      links: [
+        { label: "Live link", href: "https://example.com" },
+        { label: "GitHub", href: "https://github.com/yourhandle/project" }
+      ]
+    }
+  ],
+  blogs: [
+    {
+      title: "Getting Started",
+      description: "Write about your first blog post topic.",
+      date: "01/01/2025",
+      tags: ["development", "thoughts"],
+      image: "https://example.com/blog.png",
+      href: "https://medium.com/@yourhandle/post"
+    }
+  ]
+};
 ```
 
 | Field | Description |
@@ -99,16 +157,72 @@ const lastFmUser = "YOUR_LASTFM_USERNAME";
 fetch("https://github-contributions-api.jogruber.de/v4/YOUR_USERNAME?y=2026")
 ```
 
-### Live Status
-Create a [GitHub Gist](https://gist.github.com) with your schedule:
-```
-08:00-12:00 | 💼 | Working
-12:00-13:00 | 🍽️ | Lunch break
-```
-Then update the `STATUS_GIST` URL in `client.js`.
+### Live Status (via GitHub Gist)
+
+The status badge on the home page pulls from a **GitHub Gist**.
+
+**Setup:**
+
+1. Go to [gist.github.com](https://gist.github.com)
+2. Create a new **public** gist named `status.txt`
+3. Add your daily schedule — each line is a time range:
+   ```
+   08:00-12:00 | 💼 | Working on projects
+   12:00-13:00 | 🍽️ | Lunch break
+   13:00-17:00 | 💻 | Coding
+   17:00-22:00 | 🎮 | Gaming / Free
+   ```
+4. Click "Create public gist"
+5. Click the **Raw** button and copy the URL
+6. In `client.js`, replace:
+   ```js
+   const STATUS_GIST = "https://gist.githubusercontent.com/YOUR_USER/YOUR_GIST_ID/raw/status.txt";
+   ```
+
+> ⏰ The status automatically switches based on your local time. If no range matches, it shows "Idle".
+
+### Bookmarks (via GitHub Gist)
+
+The bookmarks page loads from a **GitHub Gist** — perfect for syncing across devices.
+
+**Setup:**
+
+1. Go to [gist.github.com](https://gist.github.com)
+2. Create a new **public** gist (name doesn't matter)
+3. Add your bookmarks in this JSON format:
+   ```json
+   {
+     "categories": [
+       {
+         "title": "Design Tools",
+         "links": [
+           { "name": "Figma", "url": "https://figma.com" },
+           { "name": "Unsplash", "url": "https://unsplash.com" }
+         ]
+       },
+       {
+         "title": "Developer",
+         "links": [
+           { "name": "GitHub", "url": "https://github.com" },
+           { "name": "MDN", "url": "https://developer.mozilla.org" }
+         ]
+       }
+     ]
+   }
+   ```
+4. Click "Create public gist"
+5. Copy the **gist ID** from the URL (`https://gist.github.com/youruser/`**THIS_PART**)
+6. In `client.js`, update:
+   ```js
+   const BOOKMARKS_GIST = "YOUR_GIST_ID";
+   ```
 
 ### View Counter
-Replace `yourname` in the CountAPI URL in `client.js`.
+
+Replace `yourname` in the CountAPI URL in `client.js`:
+```js
+const res = await fetch(`https://api.countapi.xyz/${ep}/yourname/portfolio`);
+```
 
 ---
 
