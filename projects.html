@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>
+    // Apply theme before first paint — prevents white flash
+    (function(){
+      var t = localStorage.getItem("theme") || "dark";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Projects by Your Name.">
+  <meta name="twitter:card" content="summary">
+  <title>Projects · Your Name</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preload" as="style" href="styles.css" fetchpriority="high">
+  <link rel="stylesheet" href="styles.css" fetchpriority="high">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap"></noscript>
+  <!-- Optional: add analytics here -->
+</head>
+<body data-page="projects">
+  <div class="site-frame">
+    <div class="noise-layer" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="Home">ADI</a>
+      <nav class="nav" id="navMenu" aria-label="Primary navigation">
+        <a href="/">Home</a>
+        <a href="/projects" class="active">Projects</a>
+        <div class="more-wrap">
+          <button id="moreButton" class="more-button" type="button" aria-expanded="false">More</button>
+          <div id="moreMenu" class="more-menu">
+            <a href="/blog">Blog</a>
+            <a href="/bookmarks">Bookmarks</a>
+          </div>
+        </div>
+      </nav>
+      <div class="header-actions">
+        <button class="search-trigger" type="button" aria-label="Search">⌕ <span>Ctrl</span> <span>K</span></button>
+        <button class="hamburger" id="hamburger" type="button" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+    <main id="pageRoot"></main>
+        <div class="divider"></div>
+    <section class="quote-band">
+      <div class="quote-mark">&rdquo;</div>
+      <blockquote id="siteQuote"></blockquote>
+      <div class="quote-author" id="siteQuoteAuthor"></div>
+    </section>
+    <div class="divider"></div>
+    <footer class="site-footer">
+      <div>
+        <span>© 2026 Your Name</span>
+        <span>Built with ❤️</span>
+      </div>
+      <div class="footer-cat">
+        <img src="icons/cat.gif" alt="sleeping cat" onerror="this.style.display='none'">
+      </div>
+    </footer>
+  </div>
+    <dialog class="command" id="commandDialog">
+    <div class="command-box">
+      <input id="commandInput" type="search" placeholder="Type a command or search..." aria-label="Search">
+      <div id="commandResults" class="command-results"></div>
+      <div class="cmd-footer">
+        <span class="cmd-footer-logo">ADI</span>
+        <div class="cmd-footer-actions">
+          <span><kbd class="cmd-footer-kbd">↵</kbd> Go to Page</span>
+          <span><kbd class="cmd-footer-kbd">Esc</kbd> Exit</span>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  <script src="data.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Live Status Engine</title>
+<style>
+body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: #0b0b0f; font-family: monospace; color: white; }
+#status { padding: 14px 20px; border-radius: 999px; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s ease; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: gray; box-shadow: 0 0 10px gray; }
+.active { color: #00ff88; }
+.active .dot { background: #00ff88; box-shadow: 0 0 12px #00ff88; }
+.idle { color: #ffaa00; }
+.idle .dot { background: #ffaa00; box-shadow: 0 0 12px #ffaa00; }
+.sleep { color: #8a8aff; }
+.sleep .dot { background: #8a8aff; box-shadow: 0 0 12px #8a8aff; }
+</style>
+</head>
+<body>
+<div id="status" class="idle"><span class="dot"></span> Loading...</div>
+<script>
+// 🔧 Replace with your Gist raw URL containing status schedule
+// Format: HH:MM-HH:MM | emoji | label
+const GIST_URL = "https://gist.githubusercontent.com/YOUR_USER/YOUR_GIST_ID/raw/status.txt";
+const el = document.getElementById("status");
+function setStatus(text, type) { el.className = type; el.innerHTML = `<span class="dot"></span> ${text}`; }
+function toMinutes(t) { const [h, m] = t.trim().split(":").map(Number); return h * 60 + m; }
+function nowMinutes() { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+async function loadStatus() {
+  try {
+    const res = await fetch(GIST_URL + "?t=" + Date.now());
+    const text = await res.text();
+    const lines = text.trim().split("\n");
+    const now = nowMinutes();
+    let current = null;
+    for (const line of lines) {
+      const parts = line.split("|");
+      if (parts.length < 3) continue;
+      const [start, end] = parts[0].trim().split("-");
+      const s = toMinutes(start), e = toMinutes(end);
+      if (now >= s && now < e) { current = `${parts[1].trim()} ${parts[2].trim()}`; break; }
+    }
+    setStatus(current || "🟡 Idle", current ? "active" : "idle");
+  } catch { setStatus("⚪ Offline", "idle"); }
+}
+loadStatus();
+setInterval(loadStatus, 15000);
+</script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 | ADI.AI — Page Not Found</title>
+    <meta name="theme-color" content="#121212">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neo-yellow': '#FBFF48',
+                        'neo-pink': '#FF70A6',
+                        'neo-blue': '#3B82F6',
+                        'neo-green': '#33FF57',
+                        'neo-purple': '#A855F7',
+                        'neo-orange': '#FF9F1C',
+                        'neo-red': '#FF2A2A',
+                        'neo-white': '#FFFDF5',
+                        'neo-black': '#121212',
+                    },
+                    fontFamily: {
+                        'display': ['"Space Grotesk"', 'sans-serif'],
+                        'mono': ['"JetBrains Mono"', 'monospace'],
+                    },
+                    boxShadow: {
+                        'hard': '4px 4px 0px 0px #000',
+                        'hard-sm': '2px 2px 0px 0px #000',
+                        'hard-lg': '8px 8px 0px 0px #000',
+                        'hard-xl': '12px 12px 0px 0px #000',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            cursor: none;
+            background-color: #FFFDF5;
+            background-image:
+                radial-gradient(#000 1px, transparent 1px),
+                linear-gradient(to right, #e5e5e5 1px, transparent 1px),
+                linear-gradient(to bottom, #e5e5e5 1px, transparent 1px);
+            background-size: 40px 40px, 100px 100px, 100px 100px;
+            min-height: 100vh;
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+        }
+
+        #cursor {
+            pointer-events: none;
+            position: fixed;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: width 0.15s, height 0.15s, background-color 0.15s;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Glitch on 404 text */
+        .glitch {
+            position: relative;
+            animation: glitch-main 3s infinite;
+        }
+        .glitch::before, .glitch::after {
+            content: '404';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+        .glitch::before {
+            color: #FF2A2A;
+            animation: glitch-red 3s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+        }
+        .glitch::after {
+            color: #3B82F6;
+            animation: glitch-blue 3s infinite;
+            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+        }
+        @keyframes glitch-main {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-3px, 1px); }
+            94% { transform: translate(3px, -1px); }
+            96% { transform: translate(-2px, 2px); }
+        }
+        @keyframes glitch-red {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(4px, 0); }
+            94% { transform: translate(-4px, 0); }
+        }
+        @keyframes glitch-blue {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-4px, 0); }
+            94% { transform: translate(4px, 0); }
+        }
+
+        /* Game Board */
+        .board-cell {
+            width: 110px;
+            height: 110px;
+            background: #FFFDF5;
+            border: 4px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: none;
+            transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+        .board-cell:hover:not(.taken) {
+            background: #FBFF48;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+        .board-cell.taken {
+            cursor: not-allowed;
+        }
+        .board-cell svg {
+            animation: pop-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* Win highlight */
+        .board-cell.winner {
+            background: #33FF57 !important;
+            animation: win-pulse 0.6s ease forwards;
+        }
+        @keyframes win-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08) translate(-2px, -2px); box-shadow: 8px 8px 0 #000; }
+            100% { transform: scale(1) translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+        }
+
+        /* Score bar */
+        .score-box {
+            border: 4px solid #000;
+            padding: 10px 20px;
+            box-shadow: 4px 4px 0 #000;
+            text-align: center;
+            min-width: 90px;
+        }
+
+        /* Status banner */
+        #status-banner {
+            transition: all 0.3s ease;
+        }
+
+        /* Floating decoration */
+        .float-anim { animation: float 4s ease-in-out infinite; }
+        .float-anim-slow { animation: float 6s ease-in-out infinite reverse; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-14px) rotate(5deg); }
+        }
+
+        /* Marquee */
+        .marquee-content {
+            display: flex;
+            animation: scroll-mar 30s linear infinite;
+            width: max-content;
+        }
+        @keyframes scroll-mar {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Turn indicator */
+        .turn-indicator {
+            transition: all 0.2s ease;
+        }
+
+        /* Game over overlay */
+        #game-over-msg {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .btn-neo {
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            transition: all 0.15s;
+            cursor: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+        }
+        .btn-neo:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+        }
+        .btn-neo:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0 #000;
+        }
+    </style>
+</head>
+
+<body class="text-neo-black font-display antialiased selection:bg-neo-black selection:text-neo-yellow">
+
+    <!-- Custom Cursor -->
+    <div id="cursor" class="w-6 h-6 bg-white rounded-full border-2 border-black hidden lg:block"></div>
+
+    <!-- Nav -->
+    <nav class="fixed top-0 w-full z-50 px-4 py-4 pointer-events-none">
+        <div class="max-w-7xl mx-auto flex justify-between items-center pointer-events-auto">
+            <a href="index.html" class="bg-neo-white border-2 border-black px-4 py-1 text-2xl font-black shadow-hard hover:bg-neo-yellow transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none">
+                Home
+            </a>
+            <div class="hidden md:flex gap-4 bg-white border-2 border-black p-2 shadow-hard">
+                <a href="index.html#about" class="px-3 py-1 font-mono font-bold text-sm hover:bg-black hover:text-white transition-colors">/ABOUT</a>
+                <a href="index.html#projects" class="px-3 py-1 font-mono font-bold text-sm hover:bg-black hover:text-white transition-colors">/WORK</a>
+                <a href="index.html#contact" class="px-3 py-1 font-mono font-bold text-sm bg-neo-yellow border border-black hover:bg-neo-pink transition-colors">HIRE ME</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating Decorations -->
+    <div class="fixed top-32 left-6 float-anim hidden lg:block z-0 pointer-events-none">
+        <div class="w-14 h-14 bg-neo-pink border-4 border-black shadow-hard rotate-12 flex items-center justify-center text-2xl">🍦</div>
+    </div>
+    <div class="fixed top-48 right-8 float-anim-slow hidden lg:block z-0 pointer-events-none">
+        <div class="w-12 h-12 bg-neo-blue border-4 border-black shadow-hard -rotate-12 flex items-center justify-center text-xl">🍨</div>
+    </div>
+    <div class="fixed bottom-32 left-12 float-anim-slow hidden lg:block z-0 pointer-events-none">
+        <div class="w-10 h-10 bg-neo-yellow border-4 border-black shadow-hard rotate-6 flex items-center justify-center text-lg">🌀</div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex flex-col items-center justify-center min-h-screen pt-24 pb-12 px-4 relative z-10">
+
+        <!-- 404 Header -->
+        <div class="text-center mb-4">
+            <div class="inline-block bg-neo-red text-white border-4 border-black px-4 py-1 shadow-hard font-mono font-bold text-sm mb-4 rotate-[-2deg]">
+                ⚠ ERROR_CODE: PAGE_NOT_FOUND
+            </div>
+
+            <div class="relative inline-block">
+                <h1 class="glitch text-[22vw] md:text-[14vw] font-black leading-none tracking-tighter text-neo-black select-none">
+                    404
+                </h1>
+            </div>
+
+            <p class="font-mono text-lg md:text-2xl bg-neo-yellow border-4 border-black px-6 py-3 shadow-hard inline-block rotate-1 mt-2">
+                Looks like this page went for <b>ice cream</b> and never came back 🍦
+            </p>
+        </div>
+
+        <!-- Divider marquee -->
+        <div class="w-full border-y-4 border-black bg-neo-black py-2 my-8 overflow-hidden">
+            <div class="marquee-content font-mono font-bold text-neo-green text-lg">
+                /// PAGE_NOT_FOUND /// WHILE YOU'RE HERE, PLAY A GAME /// 🍦 VS 🍨 /// ICE CREAM BATTLE /// PAGE_NOT_FOUND /// WHILE YOU'RE HERE, PLAY A GAME /// 🍦 VS 🍨 /// ICE CREAM BATTLE ///&nbsp;
+                /// PAGE_NOT_FOUND /// WHILE YOU'RE HERE, PLAY A GAME /// 🍦 VS 🍨 /// ICE CREAM BATTLE /// PAGE_NOT_FOUND /// WHILE YOU'RE HERE, PLAY A GAME /// 🍦 VS 🍨 /// ICE CREAM BATTLE ///&nbsp;
+            </div>
+        </div>
+
+        <!-- Game Section -->
+        <div class="w-full max-w-4xl">
+            <div class="bg-white border-4 border-black shadow-hard-xl p-6 md:p-10">
+
+                <!-- Game Title -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-4xl md:text-5xl font-black uppercase">ICE_CREAM<span class="text-neo-pink">_WAR</span></h2>
+                        <p class="font-mono text-sm text-gray-500 mt-1">&gt;_ tic_tac_toe.exe — frozen edition</p>
+                    </div>
+                    <!-- Scoreboard -->
+                    <div class="flex gap-3 items-center">
+                        <div class="score-box bg-neo-pink">
+                            <div class="font-mono text-xs font-bold mb-1">CONE 🍦</div>
+                            <div class="text-3xl font-black" id="score-p1">0</div>
+                        </div>
+                        <div class="score-box bg-gray-100">
+                            <div class="font-mono text-xs font-bold mb-1">DRAW</div>
+                            <div class="text-3xl font-black" id="score-draw">0</div>
+                        </div>
+                        <div class="score-box bg-neo-blue text-white">
+                            <div class="font-mono text-xs font-bold mb-1 text-white">SCOOP 🍨</div>
+                            <div class="text-3xl font-black" id="score-p2">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Turn Indicator -->
+                <div id="status-banner" class="font-mono font-bold text-base border-4 border-black px-4 py-3 mb-6 bg-neo-yellow shadow-hard flex items-center gap-3">
+                    <div id="turn-icon" class="text-2xl"></div>
+                    <span id="status-text">Player 1's turn — Place your 🍦 ICE CREAM CONE</span>
+                </div>
+
+                <!-- Board + Legend -->
+                <div class="flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center">
+
+                    <!-- Tic Tac Toe Board -->
+                    <div class="relative">
+                        <div class="grid grid-cols-3 gap-0 border-4 border-black shadow-hard-xl" id="board">
+                            <!-- 9 cells rendered by JS -->
+                        </div>
+                        <!-- Game Over Overlay -->
+                        <div id="game-over-msg" class="absolute inset-0 bg-neo-black/90 flex-col items-center justify-center z-20 hidden">
+                            <div class="text-center p-6">
+                                <div id="result-emoji" class="text-6xl mb-3"></div>
+                                <div id="result-text" class="text-white font-black text-3xl uppercase mb-2"></div>
+                                <div id="result-sub" class="text-gray-400 font-mono text-sm mb-6"></div>
+                                <button onclick="resetGame()" class="btn-neo bg-neo-green text-black px-8 py-3 text-lg font-black uppercase">
+                                    PLAY_AGAIN →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legend + Controls -->
+                    <div class="flex flex-col gap-4 min-w-[200px]">
+                        <div class="border-4 border-black p-4 bg-neo-black text-white shadow-hard">
+                            <h3 class="font-mono font-bold text-xs text-neo-green mb-3 uppercase tracking-widest">&gt;_ PLAYERS.CONFIG</h3>
+                            <div class="flex items-center gap-3 mb-4 p-2 border-2 border-neo-pink/40 bg-white/5">
+                                <div class="text-3xl">🍦</div>
+                                <div>
+                                    <div class="font-black text-sm">PLAYER 1</div>
+                                    <div class="font-mono text-xs text-neo-pink">ICE CREAM CONE</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-2 border-2 border-neo-blue/40 bg-white/5">
+                                <div class="text-3xl">🍨</div>
+                                <div>
+                                    <div class="font-black text-sm">PLAYER 2</div>
+                                    <div class="font-mono text-xs text-neo-blue">ICE CREAM SCOOP</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Win conditions hint -->
+                        <div class="border-4 border-black p-4 bg-neo-yellow shadow-hard">
+                            <h3 class="font-mono font-bold text-xs mb-2 uppercase tracking-widest">&gt;_ WIN_CONDITIONS</h3>
+                            <p class="font-mono text-xs text-gray-700 leading-relaxed">Get 3 in a row —<br>horizontal, vertical,<br>or diagonal 🏆</p>
+                        </div>
+
+                        <!-- Buttons -->
+                        <button onclick="resetGame()" class="btn-neo bg-neo-white px-4 py-3 text-sm font-black uppercase text-center">
+                            🔄 RESET BOARD
+                        </button>
+                        <a href="index.html" class="btn-neo bg-neo-black text-white px-4 py-3 text-sm font-black uppercase text-center block">
+                            ← BACK TO SITE
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Move Log -->
+                <div class="mt-6 border-4 border-black bg-neo-black p-4 shadow-hard">
+                    <div class="font-mono text-xs text-neo-green mb-2 font-bold">&gt;_ MOVE_LOG.txt</div>
+                    <div id="move-log" class="font-mono text-xs text-gray-400 h-16 overflow-y-auto space-y-1 pr-1">
+                        <span class="text-gray-600">// Waiting for first move...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back home CTA -->
+        <div class="mt-10 text-center">
+            <a href="index.html" class="inline-flex items-center gap-3 bg-neo-black text-white border-4 border-black px-8 py-4 font-black text-lg shadow-hard hover:bg-neo-green hover:text-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                <i class="ri-arrow-left-line"></i> RETURN TO HOMEPAGE
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer strip -->
+    <div class="border-t-4 border-black bg-neo-black text-center py-4">
+        <p class="font-mono text-gray-500 text-xs">© 2026 Your Name // ERROR_404 — SYSTEM_END</p>
+    </div>
+
+    <script>
+        // ─── Custom Cursor ───────────────────────────────────────────
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        document.querySelectorAll('a, button, .board-cell').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.width = '50px';
+                cursor.style.height = '50px';
+                cursor.style.backgroundColor = '#FBFF48';
+                cursor.style.mixBlendMode = 'normal';
+                cursor.style.border = '2px solid black';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.width = '24px';
+                cursor.style.height = '24px';
+                cursor.style.backgroundColor = '#fff';
+                cursor.style.mixBlendMode = 'difference';
+                cursor.style.border = 'none';
+            });
+        });
+
+        // ─── Game Logic ───────────────────────────────────────────────
+        const PLAYERS = {
+            1: { emoji: '🍦', name: 'ICE CREAM CONE', color: '#FF70A6', label: 'Player 1' },
+            2: { emoji: '🍨', name: 'ICE CREAM SCOOP', color: '#3B82F6', label: 'Player 2' }
+        };
+
+        const WIN_LINES = [
+            [0,1,2],[3,4,5],[6,7,8], // rows
+            [0,3,6],[1,4,7],[2,5,8], // cols
+            [0,4,8],[2,4,6]          // diags
+        ];
+
+        let board = Array(9).fill(null);
+        let currentPlayer = 1;
+        let gameOver = false;
+        let scores = { 1: 0, 2: 0, draw: 0 };
+        let moveCount = 0;
+        let moves = [];
+
+        function renderBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            board.forEach((val, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'board-cell' + (val ? ' taken' : '');
+                cell.dataset.index = i;
+                if (val) {
+                    cell.innerHTML = `<span style="font-size:52px;line-height:1;display:block;" role="img">${PLAYERS[val].emoji}</span>`;
+                }
+                // Border structure for 3x3 grid
+                const row = Math.floor(i / 3);
+                const col = i % 3;
+                let border = '';
+                if (col < 2) border += ' border-r-4';
+                if (row < 2) border += ' border-b-4';
+                cell.className += ' ' + border;
+                cell.style.borderColor = '#000';
+                cell.addEventListener('click', () => handleClick(i));
+                boardEl.appendChild(cell);
+            });
+        }
+
+        function handleClick(idx) {
+            if (gameOver || board[idx]) return;
+
+            board[idx] = currentPlayer;
+            moveCount++;
+
+            // Log the move
+            const logEntry = `[MOVE_${String(moveCount).padStart(2,'0')}] ${PLAYERS[currentPlayer].label} placed ${PLAYERS[currentPlayer].emoji} at cell ${idx + 1}`;
+            moves.push(logEntry);
+            updateLog();
+
+            renderBoard();
+
+            const result = checkWin();
+            if (result === 'win') {
+                highlightWin();
+                endGame('win');
+            } else if (result === 'draw') {
+                endGame('draw');
+            } else {
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                updateStatus();
+            }
+        }
+
+        function checkWin() {
+            for (const line of WIN_LINES) {
+                const [a, b, c] = line;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return 'win';
+                }
+            }
+            if (board.every(v => v !== null)) return 'draw';
+            return null;
+        }
+
+        function highlightWin() {
+            for (const line of WIN_LINES) {
+                const [a, b, c] = line;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    [a, b, c].forEach(i => {
+                        document.querySelectorAll('.board-cell')[i].classList.add('winner');
+                    });
+                    break;
+                }
+            }
+        }
+
+        function endGame(type) {
+            gameOver = true;
+            const overlay = document.getElementById('game-over-msg');
+            const emojiEl = document.getElementById('result-emoji');
+            const textEl = document.getElementById('result-text');
+            const subEl = document.getElementById('result-sub');
+            const banner = document.getElementById('status-banner');
+
+            if (type === 'win') {
+                scores[currentPlayer]++;
+                updateScores();
+                emojiEl.textContent = PLAYERS[currentPlayer].emoji;
+                textEl.textContent = `${PLAYERS[currentPlayer].label} Wins!`;
+                subEl.textContent = `${PLAYERS[currentPlayer].name} dominates the board 🏆`;
+                banner.className = 'font-mono font-bold text-base border-4 border-black px-4 py-3 mb-6 bg-neo-green shadow-hard flex items-center gap-3';
+                document.getElementById('turn-icon').textContent = '🏆';
+                document.getElementById('status-text').textContent = `${PLAYERS[currentPlayer].emoji} ${PLAYERS[currentPlayer].label} WINS THE BATTLE!`;
+            } else {
+                scores.draw++;
+                updateScores();
+                emojiEl.textContent = '🤝';
+                textEl.textContent = 'Frozen Draw!';
+                subEl.textContent = 'The ice cream board is completely melted — no winner!';
+                banner.className = 'font-mono font-bold text-base border-4 border-black px-4 py-3 mb-6 bg-neo-orange shadow-hard flex items-center gap-3';
+                document.getElementById('turn-icon').textContent = '🤝';
+                document.getElementById('status-text').textContent = 'DRAW! The ice cream war ends in a tie!';
+            }
+
+            const logEnd = type === 'win'
+                ? `[GAME_OVER] ${PLAYERS[currentPlayer].label} wins in ${moveCount} moves!`
+                : `[GAME_OVER] Draw after ${moveCount} moves!`;
+            moves.push(logEnd);
+            updateLog();
+
+            setTimeout(() => {
+                overlay.style.display = 'flex';
+                overlay.classList.remove('hidden');
+            }, 700);
+        }
+
+        function updateStatus() {
+            const banner = document.getElementById('status-banner');
+            const icon = document.getElementById('turn-icon');
+            const text = document.getElementById('status-text');
+
+            banner.className = 'font-mono font-bold text-base border-4 border-black px-4 py-3 mb-6 shadow-hard flex items-center gap-3';
+            banner.style.background = currentPlayer === 1 ? '#FF70A6' : '#3B82F6';
+            icon.textContent = PLAYERS[currentPlayer].emoji;
+            text.textContent = `Player ${currentPlayer}'s turn — Place your ${PLAYERS[currentPlayer].emoji} ${PLAYERS[currentPlayer].name}`;
+            text.style.color = currentPlayer === 2 ? '#fff' : '#000';
+        }
+
+        function updateScores() {
+            document.getElementById('score-p1').textContent = scores[1];
+            document.getElementById('score-p2').textContent = scores[2];
+            document.getElementById('score-draw').textContent = scores.draw;
+        }
+
+        function updateLog() {
+            const logEl = document.getElementById('move-log');
+            logEl.innerHTML = moves.map((m, i) => {
+                const isEnd = m.startsWith('[GAME_OVER]');
+                return `<div class="${isEnd ? 'text-neo-green font-bold' : 'text-gray-400'}">${m}</div>`;
+            }).join('');
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function resetGame() {
+            board = Array(9).fill(null);
+            currentPlayer = 1;
+            gameOver = false;
+            moveCount = 0;
+
+            const overlay = document.getElementById('game-over-msg');
+            overlay.style.display = 'none';
+            overlay.classList.add('hidden');
+
+            // Reset status
+            const banner = document.getElementById('status-banner');
+            banner.className = 'font-mono font-bold text-base border-4 border-black px-4 py-3 mb-6 bg-neo-yellow shadow-hard flex items-center gap-3';
+            banner.style.background = '#FBFF48';
+            document.getElementById('turn-icon').textContent = PLAYERS[1].emoji;
+            document.getElementById('status-text').textContent = `Player 1's turn — Place your 🍦 ICE CREAM CONE`;
+            document.getElementById('status-text').style.color = '#000';
+
+            moves.push('─────────── NEW_GAME ───────────');
+            updateLog();
+
+            renderBoard();
+        }
+
+        // Init
+        renderBoard();
+        updateStatus();
+    </script>
+</body>
+</html>

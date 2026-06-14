@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Spotify Widget</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/vercel/geist-font/packages/next/fonts/geist-mono.css');
+body {
+  margin: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: "Geist Mono", monospace;
+}
+.widget {
+  width: 370px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #121212;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.widget::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.12;
+  pointer-events: none;
+}
+.left { display: flex; align-items: center; gap: 12px; z-index: 1; }
+img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; background: #222; }
+.text { display: flex; flex-direction: column; gap: 3px; }
+.status { font-size: 11px; color: #aaa; display: flex; align-items: center; gap: 6px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #666; }
+.title { font-size: 14px; font-weight: 600; max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.artist { font-size: 12px; color: #aaa; }
+.icon { width: 26px; height: 26px; fill: #1DB954; z-index: 1; }
+.widget:hover { border-color: rgba(29,185,84,0.35); box-shadow: 0 0 20px rgba(29,185,84,0.15); }
+</style>
+</head>
+<body>
+<div class="widget">
+  <div class="left">
+    <img id="cover" />
+    <div class="text">
+      <div class="status"><span class="dot" id="dot"></span><span id="status">Loading...</span></div>
+      <div class="title" id="song">---</div>
+      <div class="artist" id="artist">---</div>
+    </div>
+  </div>
+  <svg class="icon" viewBox="0 0 24 24">
+    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.6.4-.9.2-2.5-1.5-5.6-1.8-9.3-.9-.4.1-.7-.2-.8-.5-.1-.4.2-.7.5-.8 4-.9 7.5-.6 10.3 1.1.4.2.4.6.2.9zm1.3-2.9c-.3.4-.8.5-1.2.2-3-1.8-7.6-2.3-11.2-1.2-.5.1-1-.2-1.1-.7-.1-.5.2-1 .7-1.1 4.2-1.2 9.3-.6 12.7 1.5.4.2.5.8.1 1.3zm.1-3c-3.6-2.1-9.5-2.3-12.9-1.2-.6.2-1.2-.2-1.4-.8-.2-.6.2-1.2.8-1.4 4-1.2 10.5-.9 14.7 1.5.6.3.8 1 .5 1.6-.3.6-1 .8-1.7.3z"/>
+  </svg>
+</div>
+<script>
+// 🔧 Replace with your Last.fm credentials
+const API_KEY = "YOUR_LASTFM_API_KEY";
+const USER = "YOUR_LASTFM_USERNAME";
+
+const songEl = document.getElementById("song");
+const artistEl = document.getElementById("artist");
+const coverEl = document.getElementById("cover");
+const statusEl = document.getElementById("status");
+const dotEl = document.getElementById("dot");
+
+function getImage(track) {
+  const img = track?.image;
+  return img?.[3]?.["#text"] || img?.[2]?.["#text"] || img?.[1]?.["#text"] || img?.[0]?.["#text"] || "https://via.placeholder.com/150";
+}
+
+async function fetchTrack() {
+  try {
+    const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${API_KEY}&format=json&_=${Date.now()}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const track = data.recenttracks.track[0];
+    const isNowPlaying = track["@attr"]?.nowplaying;
+    coverEl.src = getImage(track);
+    songEl.innerText = track.name;
+    artistEl.innerText = track.artist["#text"];
+    statusEl.innerText = isNowPlaying ? "Now playing" : "Last played";
+    dotEl.style.background = isNowPlaying ? "#1DB954" : "#666";
+  } catch (err) {
+    statusEl.innerText = "Error loading";
+  }
+}
+fetchTrack();
+setInterval(fetchTrack, 1000);
+</script>
+</body>
+</html>
