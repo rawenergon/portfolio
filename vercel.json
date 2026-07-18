@@ -1,8 +1,4 @@
 {
   "framework": null,
-  "rewrites": [
-    { "source": "/blog",     "destination": "/blog.html" },
-    { "source": "/projects", "destination": "/projects.html" },
-    { "source": "/bookmarks", "destination": "/bookmarks.html" },
-  ]
+  "rewrites": []
 }
