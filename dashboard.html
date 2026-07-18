@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>
+    (function(){
+      var t = localStorage.getItem("theme") || "dark";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Blog post editor for Jekyll — write, preview, and commit posts directly to GitHub.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dashboard · Your Name">
+  <meta name="twitter:description" content="Blog post editor for Jekyll — write, preview, and commit posts directly to GitHub.">
+  <meta name="twitter:image" content="https://yourusername.vercel.app/src/x.png">
+  <meta property="og:image" content="https://yourusername.vercel.app/src/x.png">
+  <meta property="og:title" content="Dashboard · Your Name">
+  <meta property="og:description" content="Blog post editor for Jekyll — write, preview, and commit posts directly to GitHub.">
+  <title>Dashboard · Your Name</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="styles.css" fetchpriority="high">
+  <link rel="stylesheet" href="styles.css" fetchpriority="high">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap"></noscript>
+  
+  
+</head>
+<body>
+  <div class="site-frame">
+    <div class="noise-layer" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="Home">ADI</a>
+      <nav class="nav" id="navMenu" aria-label="Primary navigation">
+        <a href="/">Home</a>
+        <a href="/projects">Projects</a>
+        <div class="more-wrap">
+          <button id="moreButton" class="more-button" type="button" aria-expanded="false">More</button>
+          <div id="moreMenu" class="more-menu">
+            <a href="/blog">Blog</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/bookmarks">Bookmarks</a>
+            <a href="/sponsor">Sponsor</a>
+          </div>
+        </div>
+      </nav>
+      <div class="header-actions">
+        <button class="search-trigger" type="button" aria-label="Search">⌕ <span>Ctrl</span> <span>K</span></button>
+      </div>
+    </header>
+    <main id="pageRoot">
+      <div class="dash-wrap" id="dashApp">
+        <div class="dash-header">
+          <h1>Blog Dashboard</h1>
+          <p>Write and manage Jekyll blog posts. Save drafts locally, then download the <code>.md</code> file and drop it into <code>_posts/</code>.</p>
+        </div>
+
+        <div class="dash-tabs">
+          <button class="dash-tab dash-tab--active" data-mode="edit" onclick="setMode('edit')" type="button">Edit</button>
+          <button class="dash-tab" data-mode="preview" onclick="setMode('preview')" type="button">Preview</button>
+        </div>
+
+        <div class="dash-panel dash-panel--active" id="dashPanelEdit">
+          <div class="dash-form">
+            <div class="dash-field">
+              <label>Post Title *</label>
+              <input id="df-title" placeholder="My Awesome Post" oninput="updatePreview()">
+            </div>
+            <div class="dash-field">
+              <label>Description</label>
+              <input id="df-desc" placeholder="Short summary for the blog card" oninput="updatePreview()">
+            </div>
+            <div class="dash-field" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div>
+                <label>Date *</label>
+                <input id="df-date" type="date" oninput="updatePreview()">
+              </div>
+              <div>
+                <label>Tags</label>
+                <input id="df-tags" placeholder="design, code, thoughts" oninput="updatePreview()">
+              </div>
+            </div>
+            <div class="dash-field" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div>
+                <label>Author Avatar URL</label>
+                <input id="df-avatar" placeholder="https://example.com/avatar.jpg" oninput="updatePreview()">
+              </div>
+              <div>
+                <label>Author URL</label>
+                <input id="df-author-url" placeholder="https://github.com/username" oninput="updatePreview()">
+              </div>
+            </div>
+            <div class="dash-field">
+              <label>Cover Image URL</label>
+              <input id="df-image" placeholder="https://example.com/image.jpg" oninput="updatePreview()">
+            </div>
+            <div style="border-top:1px solid var(--line);margin:2px 0"></div>
+            <div class="dash-field" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div>
+                <label>GitHub Repo</label>
+                <input id="df-repo" placeholder="owner/repo" value="yourusername/yourrepo">
+              </div>
+              <div>
+                <label>Branch</label>
+                <input id="df-branch" placeholder="main" value="main">
+              </div>
+            </div>
+            <div class="dash-field">
+              <label>GitHub Token <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(PAT with repo scope)</span></label>
+              <input id="df-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+            </div>
+            <div class="dash-field">
+              <label>Markdown Content *</label>
+              <div class="dash-toolbar">
+                <button class="dash-tool" onclick="insertMd('# ','')" type="button">H2</button>
+                <button class="dash-tool" onclick="insertMd('## ','')" type="button">H3</button>
+                <button class="dash-tool" onclick="insertMd('**','**')" type="button">B</button>
+                <button class="dash-tool" onclick="insertMd('*','*')" type="button">I</button>
+                <button class="dash-tool" onclick="insertMd('[','](url)')" type="button">Link</button>
+                <button class="dash-tool" onclick="insertMd('![](',' )')" type="button">Img</button>
+                <button class="dash-tool" onclick="insertMd('- ','')" type="button">List</button>
+                <button class="dash-tool" onclick="insertMd('> ','')" type="button">Quote</button>
+                <button class="dash-tool" onclick="insertMd('```\n','\n```')" type="button">Code</button>
+              </div>
+              <textarea id="df-content" placeholder="Write your Markdown here..." oninput="updatePreview()"></textarea>
+            </div>
+            <div class="dash-actions">
+              <button class="dash-btn dash-btn-primary" onclick="generatePost()" type="button">Download .md</button>
+              <button class="dash-btn dash-btn-gh" onclick="commitToGitHub()" type="button">Commit to GitHub</button>
+              <button class="dash-btn" onclick="saveDraft()" type="button">Save Draft</button>
+              <button class="dash-btn dash-btn-danger" onclick="clearForm()" type="button">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-panel" id="dashPanelPreview">
+          <div class="dash-preview">
+            <div class="dash-preview-body" id="dashPreview"><p style="color:var(--muted)">Start writing to see a preview...</p></div>
+          </div>
+        </div>
+
+        <div class="dash-drafts" id="dashDrafts">
+          <div class="dash-drafts-head">
+            <span>Saved Drafts</span>
+            <button class="dash-btn" style="padding:4px 10px;font-size:12px" onclick="loadDraft(null)" type="button">New</button>
+          </div>
+          <div id="dashDraftList"><div class="dash-empty">No drafts saved yet.</div></div>
+        </div>
+
+        <div class="dash-drafts" id="dashRepoPosts" style="margin-top:12px">
+          <div class="dash-drafts-head">
+            <span>Repo Posts <span style="font-weight:400;color:var(--muted)">(edit existing)</span></span>
+            <button class="dash-btn" style="padding:4px 10px;font-size:12px" onclick="fetchRepoPosts()" type="button">Fetch</button>
+          </div>
+          <div id="dashRepoList"><div class="dash-empty">Click <strong>Fetch</strong> to load posts from <code>_posts/</code> on GitHub.</div></div>
+        </div>
+      </div>
+    </main>
+    <div class="divider"></div>
+    <section class="quote-band">
+      <div class="quote-mark">&rdquo;</div>
+      <blockquote id="siteQuote"></blockquote>
+      <div class="quote-author" id="siteQuoteAuthor"></div>
+    </section>
+    <div class="divider"></div>
+    <footer class="site-footer">
+      <div>
+        <span>© 2026 Your Name</span>
+        <span>Built with code, Last.fm, and coffee.</span>
+      </div>
+      <div class="footer-cat">
+        <img src="/icons/cat.gif" alt="sleeping cat" onerror="this.style.display='none'">
+      </div>
+    </footer>
+  </div>
+
+  <dialog class="command" id="commandDialog">
+    <div class="command-box">
+      <input id="commandInput" type="search" placeholder="Type a command or search..." aria-label="Search">
+      <div id="commandResults" class="command-results"></div>
+      <div class="cmd-footer">
+        <span class="cmd-footer-logo">ADI</span>
+        <div class="cmd-footer-actions">
+          <span><kbd class="cmd-footer-kbd">↵</kbd> Go to Page</span>
+          <span><kbd class="cmd-footer-kbd">Esc</kbd> Exit</span>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="data.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="client.js"></script>
+
+  <script>
+let currentDraftId = null;
+let currentMode = "edit";
+let currentFilePath = null;
+let currentFileSha = null;
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll(".dash-tab").forEach(t => {
+    t.classList.toggle("dash-tab--active", t.dataset.mode === mode);
+  });
+  document.querySelectorAll(".dash-panel").forEach(p => {
+    p.classList.toggle("dash-panel--active", p.id === "dashPanel" + mode.charAt(0).toUpperCase() + mode.slice(1));
+  });
+  if (mode === "preview") updatePreview();
+}
+
+function getDate() {
+  const d = document.getElementById("df-date");
+  if (d.value) return d.value;
+  const today = new Date();
+  return today.getFullYear() + "-" + String(today.getMonth()+1).padStart(2,"0") + "-" + String(today.getDate()).padStart(2,"0");
+}
+
+function getSlug(title) {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "untitled";
+}
+
+function getTags() {
+  return document.getElementById("df-tags").value.split(",").map(t => t.trim()).filter(Boolean);
+}
+
+function generateMarkdown() {
+  const title = document.getElementById("df-title").value.trim() || "Untitled";
+  const desc = document.getElementById("df-desc").value.trim();
+  const date = getDate();
+  const tags = getTags();
+  const image = document.getElementById("df-image").value.trim();
+  const avatar = document.getElementById("df-avatar").value.trim();
+  const authorUrl = document.getElementById("df-author-url").value.trim();
+  const content = document.getElementById("df-content").value;
+
+  let front = "---\nlayout: post\ntitle: \"" + title.replace(/"/g, '\\"') + "\"\n";
+  if (desc) front += "description: \"" + desc.replace(/"/g, '\\"') + "\"\n";
+  front += "date: " + date + "\n";
+  if (tags.length) front += "tags: [" + tags.map(t => t.toLowerCase()).join(", ") + "]\n";
+  if (image) front += "image: \"" + image + "\"\n";
+  if (avatar) front += "author_avatar: \"" + avatar + "\"\n";
+  if (authorUrl) front += "author_url: \"" + authorUrl + "\"\n";
+  front += "---\n\n";
+  return front + content;
+}
+
+function generatePost() {
+  const title = document.getElementById("df-title").value.trim();
+  if (!title) { showToast("Post title is required"); return; }
+  const content = document.getElementById("df-content").value.trim();
+  if (!content) { showToast("Markdown content is required"); return; }
+
+  const md = generateMarkdown();
+  const slug = getSlug(title);
+  const date = getDate();
+  const filename = date + "-" + slug + ".md";
+
+  const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(blob);
+  showToast("Downloaded " + filename + " — drop it into _posts/ and rebuild");
+}
+
+async function commitToGitHub() {
+  const title = document.getElementById("df-title").value.trim();
+  if (!title) { showToast("Post title is required"); return; }
+  const content = document.getElementById("df-content").value.trim();
+  if (!content) { showToast("Markdown content is required"); return; }
+
+  const repo = document.getElementById("df-repo").value.trim();
+  if (!repo || !repo.includes("/")) { showToast("Enter a valid repo (owner/repo)"); return; }
+  const branch = document.getElementById("df-branch").value.trim() || "main";
+  const token = document.getElementById("df-token").value.trim();
+  if (!token) { showToast("GitHub token is required"); return; }
+  localStorage.setItem("gh_token", token);
+
+  const md = generateMarkdown();
+  const slug = getSlug(title);
+  const date = getDate();
+
+  let path, msg;
+  if (currentFilePath) {
+    path = currentFilePath;
+    msg = "Update post: " + title;
+  } else {
+    const filename = date + "-" + slug + ".md";
+    path = "_posts/" + filename;
+    msg = "New post: " + title;
+  }
+
+  const contentEncoded = btoa(unescape(encodeURIComponent(md)));
+  showToast("Committing to " + repo + "...");
+
+  try {
+    const body = { message: msg, content: contentEncoded, branch: branch };
+    if (currentFileSha) body.sha = currentFileSha;
+
+    const res = await fetch("https://api.github.com/repos/" + repo + "/contents/" + path, {
+      method: "PUT",
+      headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      currentFilePath = path;
+      currentFileSha = data.content.sha;
+      showToast("Committed! View at https://github.com/" + repo + "/blob/" + branch + "/" + path);
+    } else {
+      showToast("Error: " + (data.message || res.status));
+    }
+  } catch (e) {
+    showToast("Network error: " + e.message);
+  }
+}
+
+async function fetchRepoPosts() {
+  const repo = document.getElementById("df-repo").value.trim();
+  const token = document.getElementById("df-token").value.trim();
+  if (!repo || !token) { showToast("Enter repo and token first"); return; }
+
+  showToast("Fetching posts...");
+  try {
+    const res = await fetch("https://api.github.com/repos/" + repo + "/contents/_posts", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) { showToast("Failed to fetch: " + res.status); return; }
+    const data = await res.json();
+    const list = document.getElementById("dashRepoList");
+
+    if (!data.length) {
+      list.innerHTML = '<div class="dash-empty">No posts found in <code>_posts/</code>.</div>';
+      return;
+    }
+    list.innerHTML = data.sort((a,b) => b.name.localeCompare(a.name)).map(f =>
+      '<div class="dash-draft-row">' +
+      '<div class="dash-draft-info" style="cursor:pointer" onclick="loadRepoPost(\'' + f.path + '\',\'' + f.sha + '\',\'' + f.name.replace(/'/g, "\\'") + '\')"><strong>' + escapeHtml(f.name) + '</strong><span>' + (f.size + " bytes") + '</span></div>' +
+      '<div class="dash-draft-actions"><button class="dash-btn dash-btn-danger" style="padding:4px 8px;font-size:12px" onclick="deleteRepoPost(\'' + f.path + '\',\'' + f.sha + '\')" type="button">Delete</button></div>' +
+      '</div>'
+    ).join("");
+    showToast("Loaded " + data.length + " posts");
+  } catch (e) {
+    showToast("Error: " + e.message);
+  }
+}
+
+async function loadRepoPost(path, sha, name) {
+  const token = document.getElementById("df-token").value.trim();
+  const repo = document.getElementById("df-repo").value.trim();
+  showToast("Loading " + name + "...");
+
+  try {
+    const res = await fetch("https://api.github.com/repos/" + repo + "/contents/" + path, {
+      headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github.v3.raw" }
+    });
+    if (!res.ok) { showToast("Failed to load: " + res.status); return; }
+    const text = await res.text();
+
+    // Parse front matter
+    var title = name.replace(/^\d{4}-\d{2}-\d{2}-/, "").replace(/\.md$/, "").replace(/-/g, " ");
+    title = title.charAt(0).toUpperCase() + title.slice(1);
+    var desc = "", date = name.substring(0, 10), tags = [], image = "", avatar = "", authorUrl = "", content = text;
+
+    if (text.startsWith("---")) {
+      var end = text.indexOf("---", 3);
+      if (end > 0) {
+        var front = text.substring(3, end).trim();
+        content = text.substring(end + 3).trim();
+        front.split("\n").forEach(function(line) {
+          var m = line.match(/^(\w+):\s*(?:"(.+)"|\[(.+)\]|(.+))/);
+          if (!m) return;
+          var key = m[1], val = m[2] || m[3] || m[4] || "";
+          if (key === "title") title = val;
+          else if (key === "description") desc = val;
+          else if (key === "date") date = val;
+          else if (key === "tags") tags = val.split(",").map(function(t) { return t.trim().replace(/^"(.*)"$/, "$1"); });
+          else if (key === "image") image = val;
+          else if (key === "author_avatar") avatar = val;
+          else if (key === "author_url") authorUrl = val;
+        });
+      }
+    }
+
+    document.getElementById("df-title").value = title;
+    document.getElementById("df-desc").value = desc;
+    if (date) document.getElementById("df-date").value = date;
+    document.getElementById("df-tags").value = tags.join(", ");
+    document.getElementById("df-image").value = image;
+    document.getElementById("df-avatar").value = avatar;
+    document.getElementById("df-author-url").value = authorUrl;
+    document.getElementById("df-content").value = content;
+    currentFilePath = path;
+    currentFileSha = sha;
+    setMode("edit");
+    updatePreview();
+    showToast("Loaded: " + name);
+  } catch (e) {
+    showToast("Error: " + e.message);
+  }
+}
+
+async function deleteRepoPost(path, sha) {
+  if (!confirm("Delete " + path + "? This cannot be undone.")) return;
+
+  const repo = document.getElementById("df-repo").value.trim();
+  const token = document.getElementById("df-token").value.trim();
+  if (!repo || !token) { showToast("Enter repo and token first"); return; }
+
+  showToast("Deleting " + path + "...");
+  try {
+    const res = await fetch("https://api.github.com/repos/" + repo + "/contents/" + path, {
+      method: "DELETE",
+      headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "Delete " + path, sha: sha, branch: "main" })
+    });
+    if (res.ok) {
+      showToast("Deleted: " + path);
+      fetchRepoPosts();
+    } else {
+      const data = await res.json();
+      showToast("Error: " + (data.message || res.status));
+    }
+  } catch (e) {
+    showToast("Error: " + e.message);
+  }
+}
+
+function saveDraft() {
+  const title = document.getElementById("df-title").value.trim() || "Untitled";
+  const desc = document.getElementById("df-desc").value.trim();
+  const date = getDate();
+  const tags = getTags();
+  const image = document.getElementById("df-image").value.trim();
+  const avatar = document.getElementById("df-avatar").value.trim();
+  const authorUrl = document.getElementById("df-author-url").value.trim();
+  const content = document.getElementById("df-content").value;
+
+  const drafts = JSON.parse(localStorage.getItem("jekyll_drafts") || "[]");
+  const now = Date.now();
+
+  if (currentDraftId) {
+    const idx = drafts.findIndex(d => d.id === currentDraftId);
+    if (idx >= 0) drafts[idx] = { ...drafts[idx], title, desc, date, tags, image, avatar, authorUrl, content, updated: now };
+  } else {
+    drafts.push({ id: now, title, desc, date, tags, image, avatar, authorUrl, content, created: now, updated: now });
+    currentDraftId = now;
+  }
+
+  localStorage.setItem("jekyll_drafts", JSON.stringify(drafts));
+  renderDrafts();
+  showToast("Draft saved");
+}
+
+function loadDraft(id) {
+  if (id === null) {
+    currentDraftId = null;
+    clearForm();
+    return;
+  }
+  const drafts = JSON.parse(localStorage.getItem("jekyll_drafts") || "[]");
+  const draft = drafts.find(d => d.id === id);
+  if (!draft) return;
+  currentDraftId = draft.id;
+  document.getElementById("df-title").value = draft.title;
+  document.getElementById("df-desc").value = draft.desc || "";
+  if (draft.date) document.getElementById("df-date").value = draft.date;
+  document.getElementById("df-tags").value = (draft.tags || []).join(", ");
+  document.getElementById("df-image").value = draft.image || "";
+  document.getElementById("df-avatar").value = draft.avatar || "";
+  document.getElementById("df-author-url").value = draft.authorUrl || "";
+  document.getElementById("df-content").value = draft.content || "";
+  updatePreview();
+  renderDrafts();
+}
+
+function deleteDraft(id) {
+  let drafts = JSON.parse(localStorage.getItem("jekyll_drafts") || "[]");
+  drafts = drafts.filter(d => d.id !== id);
+  localStorage.setItem("jekyll_drafts", JSON.stringify(drafts));
+  if (currentDraftId === id) { currentDraftId = null; clearForm(); }
+  renderDrafts();
+  showToast("Draft deleted");
+}
+
+function clearForm() {
+  document.getElementById("df-title").value = "";
+  document.getElementById("df-desc").value = "";
+  document.getElementById("df-date").value = "";
+  document.getElementById("df-tags").value = "";
+  document.getElementById("df-image").value = "";
+  document.getElementById("df-avatar").value = "";
+  document.getElementById("df-author-url").value = "";
+  document.getElementById("df-content").value = "";
+  currentDraftId = null;
+  currentFilePath = null;
+  currentFileSha = null;
+  updatePreview();
+}
+
+function renderDrafts() {
+  const list = document.getElementById("dashDraftList");
+  const drafts = JSON.parse(localStorage.getItem("jekyll_drafts") || "[]");
+  if (!drafts.length) {
+    list.innerHTML = '<div class="dash-empty">No drafts saved yet.</div>';
+    return;
+  }
+  list.innerHTML = drafts.slice().reverse().map(d => {
+    const date = new Date(d.updated || d.created);
+    const dateStr = date.toLocaleDateString("en-GB");
+    const isActive = d.id === currentDraftId;
+    return '<div class="dash-draft-row"' + (isActive ? ' style="border-left:3px solid var(--accent)"' : "") + '>' +
+      '<div class="dash-draft-info">' +
+      '<strong>' + escapeHtml(d.title) + '</strong>' +
+      '<span>' + dateStr + (d.tags?.length ? " · " + d.tags.join(", ") : "") + '</span>' +
+      '</div>' +
+      '<div class="dash-draft-actions">' +
+      '<button class="dash-btn" style="padding:4px 8px;font-size:12px" onclick="loadDraft(' + d.id + ')" type="button">Edit</button>' +
+      '<button class="dash-btn dash-btn-danger" style="padding:4px 8px;font-size:12px" onclick="deleteDraft(' + d.id + ')" type="button">Del</button>' +
+      '</div></div>';
+  }).join("");
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function insertMd(before, after) {
+  const ta = document.getElementById("df-content");
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const text = ta.value;
+  const selected = text.substring(start, end);
+  ta.value = text.substring(0, start) + before + selected + after + text.substring(end);
+  ta.selectionStart = start + before.length;
+  ta.selectionEnd = start + before.length + selected.length;
+  ta.focus();
+  updatePreview();
+}
+
+function updatePreview() {
+  const preview = document.getElementById("dashPreview");
+  const content = document.getElementById("df-content").value;
+  if (!content.trim()) {
+    preview.innerHTML = '<p style="color:var(--muted)">Start writing to see a preview...</p>';
+    return;
+  }
+  preview.innerHTML = renderMd(content);
+}
+
+function renderMd(md) {
+  let html = md
+    .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+    .replace(/^# (.+)$/gm, "<h2>$1</h2>")
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/^> (.+)$/gm, "<blockquote>$1</blockquote>")
+    .replace(/^- (.+)$/gm, "<li>$1</li>")
+    .replace(/(<li>.*<\/li>\n?)+/g, function(m) { return "<ul>" + m.replace(/\n$/, "") + "</ul>"; })
+    .replace(/^(\d+)\. (.+)$/gm, "<li>$2</li>")
+    .replace(/(<li>.*<\/li>\n?)+/g, function(m, offset, str) {
+      if (str.substring(0, offset).match(/^\d+\. /m)) return "<ol>" + m.replace(/\n$/, "") + "</ol>";
+      return m;
+    })
+    .replace(/```([\s\S]*?)```/g, "<pre><code>$1</code></pre>")
+    .replace(/\n\n/g, "</p><p>")
+    .replace(/\n/g, "<br>");
+
+  html = html.replace(/<li><br>/g, "<li>").replace(/<\/li><br>/g, "</li>");
+  html = "<p>" + html + "</p>";
+  html = html.replace(/<p><\/p>/g, "");
+  html = html.replace(/<p><br><\/p>/g, "");
+  html = html.replace(/<br><\/p>/g, "</p>");
+  html = html.replace(/<p><br>/g, "<p>");
+  return html;
+}
+
+function showToast(msg) {
+  const existing = document.querySelector(".dash-toast");
+  if (existing) existing.remove();
+  const t = document.createElement("div");
+  t.className = "dash-toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add("dash-toast--visible"));
+  setTimeout(() => { t.classList.remove("dash-toast--visible"); setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+document.getElementById("df-date").value = new Date().toISOString().split("T")[0];
+var savedToken = localStorage.getItem("gh_token");
+if (savedToken) document.getElementById("df-token").value = savedToken;
+renderDrafts();
+  </script>
+</body>
+</html>
+
