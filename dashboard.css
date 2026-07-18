@@ -1,0 +1,331 @@
+/* Dashboard — Jekyll blog post editor */
+.dash-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+.dash-header {
+  padding: 32px 0 16px;
+  margin-bottom: 20px;
+}
+.dash-header h1 {
+  font-family: "Geist Mono", monospace;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+.dash-header p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+.dash-header p code {
+  font-size: 12px;
+}
+
+/* --- Mode toggle --- */
+.dash-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+.dash-tab {
+  padding: 7px 20px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-family: "Geist", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dash-tab:hover {
+  color: var(--text);
+}
+.dash-tab--active {
+  background: var(--accent);
+  color: #fff;
+}
+.dash-tab--active:hover {
+  color: #fff;
+}
+
+/* --- Panels --- */
+.dash-panel {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.dash-panel--active {
+  display: block;
+  opacity: 1;
+}
+
+/* --- Form --- */
+.dash-form {
+  display: grid;
+  gap: 14px;
+}
+.dash-field {
+  display: grid;
+  gap: 4px;
+}
+.dash-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.dash-field input,
+.dash-field textarea,
+.dash-field select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-family: "Geist", sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.dash-field input:focus,
+.dash-field textarea:focus {
+  border-color: var(--accent);
+}
+.dash-field textarea {
+  min-height: 340px;
+  font-family: "Geist Mono", monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  resize: vertical;
+}
+.dash-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dash-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  font-family: "Geist", sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dash-btn:hover {
+  background: var(--panel-soft);
+  border-color: var(--line-strong);
+}
+.dash-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.dash-btn-primary:hover {
+  opacity: 0.9;
+}
+.dash-btn-gh {
+  background: #238636;
+  color: #fff;
+  border-color: #238636;
+}
+.dash-btn-gh:hover {
+  opacity: 0.9;
+}
+.dash-btn-danger {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+.dash-btn-danger:hover {
+  background: color-mix(in srgb, #ef4444 10%, transparent);
+}
+
+/* --- Toolbar --- */
+.dash-toolbar {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.dash-tool {
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 11px;
+  font-family: "Geist Mono", monospace;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.dash-tool:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+/* --- Preview --- */
+.dash-preview {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.dash-preview-body {
+  padding: 28px;
+  min-height: 340px;
+  font-size: 15px;
+  line-height: 1.75;
+}
+.dash-preview-body h2 {
+  font-family: "Geist Mono", monospace;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 24px 0 8px;
+}
+.dash-preview-body h3 {
+  font-family: "Geist Mono", monospace;
+  font-size: 17px;
+  font-weight: 500;
+  margin: 18px 0 6px;
+  color: var(--muted);
+}
+.dash-preview-body p { margin: 0 0 12px; }
+.dash-preview-body img {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  margin: 10px 0;
+}
+.dash-preview-body pre {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: "Geist Mono", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+.dash-preview-body code {
+  background: var(--panel);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.dash-preview-body pre code {
+  background: none;
+  padding: 0;
+}
+.dash-preview-body blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 10px 0;
+  padding: 4px 16px;
+  color: var(--muted);
+  font-style: italic;
+}
+.dash-preview-body ul, .dash-preview-body ol {
+  padding-left: 22px;
+  margin: 8px 0;
+}
+.dash-preview-body li { margin-bottom: 4px; }
+.dash-preview-body a { color: var(--accent); text-decoration: underline; }
+.dash-preview-body strong { font-weight: 600; }
+.dash-preview-body em { font-style: italic; }
+
+/* --- Drafts --- */
+.dash-drafts {
+  margin-top: 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.dash-drafts-head {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dash-draft-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.12s;
+}
+.dash-draft-row:hover {
+  background: var(--panel-soft);
+}
+.dash-draft-row:last-child { border-bottom: 0; }
+.dash-draft-info strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 1px;
+}
+.dash-draft-info span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.dash-draft-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.dash-empty {
+  padding: 28px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* --- Toast --- */
+.dash-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+  max-width: 90vw;
+}
+.dash-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 640px) {
+  .dash-wrap { padding-left: 14px; padding-right: 14px; }
+  .dash-preview-body { padding: 18px; }
+}
+
