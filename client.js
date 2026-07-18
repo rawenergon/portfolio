@@ -1,8 +1,8 @@
 // Shared renderer for all pages. Pages choose what to render with body[data-page].
 const data = window.portfolioData;
 
-const lastFmApiKey = "YOUR_LASTFM_API_KEY";
-const lastFmUser = "YOUR_LASTFM_USERNAME";
+const lastFmApiKey = "25e5a2008d8bb0c1021207d4f50bbd4d";
+const lastFmUser = "rawenergon";
 
 const CLICK_SOUND = "/src/click.mp3"; // ← drop your click sound at src/click.mp3
 
@@ -36,16 +36,6 @@ function externalAttrs(href) {
 function initHeader() {
   const moreButton = $("#moreButton");
   const moreMenu = $("#moreMenu");
-  const hamburger = $("#hamburger");
-  const navMenu = $("#navMenu");
-
-  hamburger?.addEventListener("click", () => {
-    playClick();
-    const isOpen = hamburger.classList.toggle("is-open");
-    navMenu?.classList.toggle("is-open");
-    hamburger.setAttribute("aria-expanded", String(isOpen));
-  });
-
   moreButton?.addEventListener("click", () => {
     playClick();
     const isOpen = moreMenu.classList.toggle("is-open");
@@ -64,20 +54,6 @@ function initHeader() {
       moreMenu?.classList.remove("is-open");
       moreButton?.setAttribute("aria-expanded", "false");
     }
-    if (!event.target.closest(".hamburger") && !event.target.closest(".nav")) {
-      hamburger?.classList.remove("is-open");
-      navMenu?.classList.remove("is-open");
-      hamburger?.setAttribute("aria-expanded", "false");
-    }
-  });
-
-  // Close nav on link click
-  navMenu?.querySelectorAll("a").forEach(link => {
-    link.addEventListener("click", () => {
-      hamburger?.classList.remove("is-open");
-      navMenu?.classList.remove("is-open");
-      hamburger?.setAttribute("aria-expanded", "false");
-    });
   });
 }
 
@@ -134,19 +110,19 @@ async function fetchRealViews() {
   let count = 0;
   // Primary: CountAPI (free, no auth, reliable)
   try {
-    const hit = sessionStorage.getItem("portfolio_hit");
+    const hit = sessionStorage.getItem("adi_hit");
     const ep = hit ? "get" : "hit";
-    const res = await fetch(`https://api.countapi.xyz/${ep}/yourname/portfolio`);
+    const res = await fetch(`https://api.countapi.xyz/${ep}/adibxr/portfolio`);
     if (res.ok) {
       const d = await res.json();
       count = d?.value ?? 0;
-      if (!hit) sessionStorage.setItem("portfolio_hit", "1");
+      if (!hit) sessionStorage.setItem("adi_hit", "1");
     }
   } catch {}
   // Fallback: GoatCounter
   if (!count) {
     try {
-      const res = await fetch("https://YOUR_GOATCOUNTER.api/v0/stats/total");
+      const res = await fetch("https://adibxr.goatcounter.com/api/v0/stats/total");
       if (res.ok) {
         const d = await res.json();
         count = d?.total ?? d?.count ?? 0;
@@ -173,7 +149,7 @@ async function fetchGithubGraph() {
   const container = $("#gh-graph");
   if (!container) return;
   try {
-    const res = await fetch("https://github-contributions-api.jogruber.de/v4/YOUR_GITHUB_USERNAME?y=2026");
+    const res = await fetch("https://github-contributions-api.jogruber.de/v4/rawenergon?y=2026");
     if (!res.ok) throw new Error();
     const data = await res.json();
     renderGithubGraph(container, data.contributions || []);
@@ -538,8 +514,8 @@ function renderHome() {
     <section class="content-section">
       <h2>Blogs</h2>
       <div class="blog-grid home-blogs">
-        ${data.blogs.slice(0, 2).map(post => `
-          <a class="blog-card" href="${escapeHtml(post.href)}"${externalAttrs(post.href)}>
+        ${data.blogs.filter(b => b.pinned).map(post => `
+<a class="blog-card" href="${escapeHtml(post.href || post.content || "#")}">
             <div class="blog-card-img" style="${post.image ? `background-image:url('${escapeHtml(post.image)}')` : "background:var(--panel-soft)"}">
               ${!post.image ? `<span class="blog-card-placeholder">✍</span>` : ""}
             </div>
@@ -570,7 +546,7 @@ function renderHome() {
     <section class="cta-section">
       <h2>Scrolled To Far</h2>
       <p class="cta-text">If you've read this far, you might be interested in what I do.</p>
-      <a href="https://cal.com/YOUR_USERNAME" target="_blank" rel="noreferrer" class="cta-button">
+      <a href="https://cal.com/rawenergon" target="_blank" rel="noreferrer" class="cta-button">
         <span class="cta-emoji">&#x1F385;</span> Book A Free Call
       </a>
     </section>`;
@@ -671,10 +647,6 @@ function renderProjectsPage() {
       <h1>Projects</h1>
       <p>Showcase of my work</p>
       <div class="page-subheader">
-        <a href="/" class="back-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
-          Home
-        </a>
         <input type="text" id="projectSearch" class="page-search" placeholder="Search Projects..." aria-label="Search projects">
       </div>
     </section>
@@ -718,72 +690,7 @@ function renderProjectsPage() {
   searchInput?.addEventListener("input", () => renderCards(searchInput.value));
 }
 
-/* ============================================================
-   BLOG PAGE
-   ============================================================ */
-function renderBlogPage() {
-  const root = $("#pageRoot");
-  root.innerHTML = `
-    <section class="page-intro">
-      <h1>Blogs</h1>
-      <p>Showcase of Blogs</p>
-      <div class="page-subheader">
-        <a href="/" class="back-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
-          Home
-        </a>
-        <input type="text" id="blogSearch" class="page-search" placeholder="Search Blog..." aria-label="Search blog">
-      </div>
-    </section>
-    <div class="blog-grid" id="blogGrid"></div>`;
 
-  const grid = $("#blogGrid");
-  const searchInput = $("#blogSearch");
-  const allTags = [...new Set(data.blogs.flatMap(p => p.tags))];
-
-  function renderCards(q) {
-    const norm = (q || "").toLowerCase().trim();
-    const list = norm
-      ? data.blogs.filter(p => p.title.toLowerCase().includes(norm) || p.description?.toLowerCase().includes(norm) || p.tags.some(t => t.toLowerCase().includes(norm)))
-      : data.blogs;
-    grid.innerHTML = list.map(post => `
-      <a class="blog-card" href="${escapeHtml(post.href)}"${externalAttrs(post.href)}>
-        <div class="blog-card-img" style="${post.image ? `background-image:url('${escapeHtml(post.image)}')` : "background:var(--panel-soft)"}">
-          ${!post.image ? `<span class="blog-card-placeholder">✍</span>` : ""}
-        </div>
-        <div class="blog-card-body">
-          <strong class="blog-card-title">${escapeHtml(post.title)}</strong>
-          ${post.description ? `<p class="blog-card-desc">${escapeHtml(post.description)}</p>` : ""}
-          <div class="blog-card-tags">${post.tags.map(t => `<span>${escapeHtml(t)}</span>`).join("")}</div>
-          <div class="blog-card-footer">
-            <span class="blog-card-date">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              ${escapeHtml(post.date)}
-            </span>
-            <span class="blog-read-more">Read More →</span>
-          </div>
-        </div>
-      </a>`).join("");
-  }
-
-  renderCards("");
-  searchInput?.addEventListener("input", () => renderCards(searchInput.value));
-}
-
-
-
-/* ============================================================
-   PAGE INTRO (shared)
-   ============================================================ */
-function renderPageIntro(title, description) {
-  const root = $("#pageRoot");
-  root.innerHTML = `
-    <section class="page-intro">
-      <h1>${escapeHtml(title)}</h1>
-      <p>${escapeHtml(description)}</p>
-    </section>
-    <div class="page-list"></div>`;
-}
 
 /* ============================================================
    COMMAND PALETTE — rich version like reference image
@@ -799,6 +706,7 @@ function initCommandPalette() {
     { label: "Projects",   hint: "Navigation", href: "/projects",   key: "P", icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>` },
     { label: "Blog",       hint: "Navigation", href: "/blog",       key: "B", icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 019 9"/><path d="M4 4a16 16 0 0116 16"/><circle cx="5" cy="19" r="1"/></svg>` },
     { label: "Bookmarks",  hint: "Navigation", href: "/bookmarks",  key: "M", icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>` },
+    { label: "Sponsor",    hint: "Navigation", href: "/sponsor",    key: "S", icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>` },
   ];
 
   const projectItems = (data.projects || []).map(p => ({
@@ -810,6 +718,7 @@ function initCommandPalette() {
 
   const features = [
     { label: "Toggle theme",  hint: "Feature", key: "D", action: () => { const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = t; localStorage.setItem("theme", t); }, icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` },
+
   ];
 
   let selectedIndex = -1;
@@ -909,7 +818,7 @@ function initCommandPalette() {
 /* ============================================================
    LIVE STATUS — dynamic Gist-based status with typing
    ============================================================ */
-const STATUS_GIST = "https://gist.githubusercontent.com/YOUR_USER/YOUR_GIST_ID/raw/status.txt";
+const STATUS_GIST = "https://gist.githubusercontent.com/rawenergon/02d31daba4d7e70fc6aac6024f7b6133/raw/status.txt";
 
 function typeText(el, text, speed = 25) {
   el.textContent = "";
@@ -986,6 +895,98 @@ function initGSAPAnimations() {
   gsap.from(".hero-band", { duration: 0.8, ease: "power2.out" });
   gsap.from(".profile-row", { y: 20, duration: 0.6, delay: 0.2, ease: "power2.out" });
 
+}
+
+/* ============================================================
+   SPONSOR PAGE
+   ============================================================ */
+function renderSponsorPage() {
+  const root = $("#pageRoot");
+  const sponsors = {
+    opensource: [],
+    gold: [
+      { name: "Abhinav", image: "https://cdn.hackclub.com/019ec9a6-9288-7831-a541-342569249249/abhinav.png", description: "Supporting the project." }
+    ],
+    silver: []
+  };
+
+  let html = `
+    <section class="page-intro">
+      <h1>Sponsors</h1>
+      <p>Backed by the community.</p>
+      <p style="margin-top:16px;color:var(--muted);font-size:15px;line-height:1.6">Grateful to the sponsors who make this open-source work possible.</p>
+    </section>`;
+
+  if (sponsors.opensource.length) {
+    html += `
+      <div class="content-section">
+        <h2>Open Source Program</h2>
+        <div class="sponsor-grid">
+          ${sponsors.opensource.map(s => `
+            <div class="sponsor-card sponsor-card--osponsor">
+              <img src="${s.image}" alt="${s.name}" class="sponsor-logo sponsor-logo--large">
+            </div>
+          `).join("")}
+        </div>
+      </div>`;
+  }
+
+  if (sponsors.gold.length) {
+    html += `
+      <div class="content-section">
+        <h2>Gold Sponsors</h2>
+        <div class="sponsor-grid">
+          ${sponsors.gold.map(s => `
+            <div class="sponsor-card sponsor-card--gold">
+              <img src="${s.image}" alt="${s.name}" class="sponsor-logo sponsor-logo--gold">
+              <h3>${s.name}</h3>
+              ${s.description ? `<p>${s.description}</p>` : ""}
+            </div>
+          `).join("")}
+        </div>
+      </div>`;
+  }
+
+  if (sponsors.silver.length) {
+    html += `
+      <div class="content-section">
+        <h2>Silver Sponsors</h2>
+        <div class="sponsor-grid">
+          ${sponsors.silver.map(s => `
+            <div class="sponsor-card sponsor-card--silver">
+              <img src="${s.image}" alt="${s.name}" class="sponsor-logo sponsor-logo--silver">
+              <p>${s.name}</p>
+            </div>
+          `).join("")}
+        </div>
+      </div>`;
+  }
+
+  html += `<div class="sponsor-cta"><div id="razorpay-cta"></div></div>`;
+  root.innerHTML = html;
+
+  const cta = $("#razorpay-cta");
+  if (cta) {
+    const f = document.createElement("form");
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/payment-button.js";
+    s.dataset.payment_button_id = "pl_T1ltzHomhRxyID";
+    s.async = true;
+    f.appendChild(s);
+    cta.appendChild(f);
+  }
+}
+
+function renderThanksPage() {
+  const root = $("#pageRoot");
+  root.innerHTML = `
+    <section class="thanks-page">
+      <div class="thanks-card">
+        <h1>Thank You!</h1>
+        <p>Your support truly means a lot. It helps me keep building and sharing.</p>
+        <a href="/" class="thanks-back">← Back home</a>
+      </div>
+    </section>`;
 }
 
 /* ============================================================
@@ -1090,6 +1091,35 @@ function renderBookmarksPage() {
 }
 
 /* ============================================================
+   CLIENT-SIDE NAVIGATION
+   ============================================================ */
+function navigate(href) {
+  if (!href || href.startsWith("http") || href.startsWith("mailto")) return;
+  const path = href.startsWith("/") ? href : "/" + href;
+  window.history.pushState({}, "", path);
+  document.body.dataset.page = path.split("/")[1] || "home";
+  routePage();
+  window.scrollTo(0, 0);
+}
+
+// Intercept internal navigation clicks (skip blog — Jekyll handles it)
+document.addEventListener("click", (e) => {
+  const link = e.target.closest("a[href]");
+  if (!link) return;
+  const href = link.getAttribute("href");
+  if (!href || href.startsWith("http") || href.startsWith("mailto") || href.startsWith("#") || href.startsWith("?") || href.startsWith("/blog") || href.startsWith("/dashboard")) return;
+  e.preventDefault();
+  playClick();
+  navigate(href);
+});
+
+// Handle browser back/forward
+window.addEventListener("popstate", () => {
+  document.body.dataset.page = window.location.pathname.split("/")[1] || "home";
+  routePage();
+});
+
+/* ============================================================
    BOOT
    ============================================================ */
 initHeader();
@@ -1126,8 +1156,19 @@ if (quoteEl && data.person.quote) {
   quoteAuthorEl.innerHTML = `<span></span>${data.person.quote.author.toUpperCase()}<span></span>`;
 }
 
-const page = document.body.dataset.page;
-if (page === "home")      renderHome();
-if (page === "projects")  renderProjectsPage();
-if (page === "blog")      renderBlogPage();
-if (page === "bookmarks") renderBookmarksPage();
+/* ============================================================
+   CLIENT-SIDE ROUTER — handles clean URLs locally
+   ============================================================ */
+function routePage() {
+  const path = window.location.pathname;
+  const currentPage = document.body.dataset.page || "";
+  // Skip if page was rendered server-side (Jekyll)
+  if (!currentPage) return;
+  if (currentPage === "home" || path === "/" || path === "") { renderHome(); return; }
+  if (currentPage === "projects")  { renderProjectsPage(); return; }
+  if (currentPage === "bookmarks") { renderBookmarksPage(); return; }
+  if (currentPage === "sponsor")   { renderSponsorPage(); return; }
+  if (currentPage === "thanks")    { renderThanksPage(); return; }
+}
+
+routePage();
