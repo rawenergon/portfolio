@@ -2,7 +2,6 @@
 <html lang="en" data-theme="dark">
 <head>
   <script>
-    // Apply theme before first paint — prevents white flash
     (function(){
       var t = localStorage.getItem("theme") || "dark";
       document.documentElement.dataset.theme = t;
@@ -21,7 +20,6 @@
   <link rel="stylesheet" href="styles.css" fetchpriority="high">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap"></noscript>
-  <!-- Optional: add analytics here -->
 </head>
 <body data-page="blog">
   <div class="site-frame">
@@ -36,6 +34,7 @@
           <div id="moreMenu" class="more-menu">
             <a class="active" href="/blog">Blog</a>
             <a href="/bookmarks">Bookmarks</a>
+            <a href="/dashboard">Dashboard</a>
           </div>
         </div>
       </nav>
@@ -57,14 +56,14 @@
     <footer class="site-footer">
       <div>
         <span>© 2026 Your Name</span>
-        <span>Built with ❤️</span>
+        <span>Built with code, passion, and coffee.</span>
       </div>
       <div class="footer-cat">
         <img src="icons/cat.gif" alt="sleeping cat" onerror="this.style.display='none'">
       </div>
     </footer>
   </div>
-    <dialog class="command" id="commandDialog">
+  <dialog class="command" id="commandDialog">
     <div class="command-box">
       <input id="commandInput" type="search" placeholder="Type a command or search..." aria-label="Search">
       <div id="commandResults" class="command-results"></div>
